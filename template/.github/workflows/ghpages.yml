@@ -48,7 +48,12 @@ jobs:
       if: ${{ github.event_name == 'push' }}
       with:
         make: gh-pages
+   <<<<<<< alpine
         token: ${{ secrets.GITHUB_TOKEN }}
+  =======
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  >>>>>>> master
 
     - name: "Archive Built Drafts"
       uses: actions/upload-artifact@v2
