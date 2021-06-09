@@ -2,7 +2,10 @@
 # Usage: $0 [gh-user] [gh-repo] [gh-token]
 
 import os
+  <<<<<<< alpine
+  =======
 import requests
+  >>>>>>> master
 import subprocess
 import sys
 
@@ -20,6 +23,29 @@ def get_branch(rev):
 
 remote = os.environ.get("GIT_REMOTE", default="origin")
 get_branch(f"{remote}/HEAD")
+  <<<<<<< alpine
+get_branch(f"refs/remotes/{remote}/HEAD")
+
+if len(sys.argv) < 4:
+    print(f"warning: {sys.argv[0]} unable to determine default branch", file=sys.stderr)
+    get_branch("HEAD")
+    exit(1)
+
+try:
+    import requests
+except ImportError:
+    print(
+        f"warning: {sys.argv[0]} need 'requests' to determine default branch",
+        file=sys.stderr,
+    )
+    print(f"warning: 'pip3 install [--user] requests' to install", file=sys.stderr)
+    get_branch("HEAD")
+    exit(1)
+
+
+url = f"https://api.github.com/repos/{sys.argv[1]}/{sys.argv[2]}"
+headers = {"Authorization": f"bearer {sys.argv[3]}"}
+  =======
 get_branch("HEAD")
 
 if len(sys.argv) < 4:
@@ -28,6 +54,7 @@ if len(sys.argv) < 4:
 
 url = f"https://api.github.com/repos/{sys.argv[1]}/{sys.argv[2]}"
 headers = {"Authorization": f"token {sys.argv[3]}"}
+  >>>>>>> master
 response = requests.get(url, headers=headers)
 response.raise_for_status()
 result = response.json()

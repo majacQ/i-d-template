@@ -7,7 +7,23 @@ html {
   --link-color: #2a6496;
   --highlight-color: #f9f9f9;
   --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
   --small-font-size: 14.5px;
+  scrollbar-color: #bbb #eee;
+}
+@media (prefers-color-scheme: dark) {
+html {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
 }
 body {
   max-width: 600px;
@@ -39,11 +55,11 @@ body {
 }
 h1, h2, h3 {
   font-size: 22px;
-  line-height: 26px;
+  line-height: 27px;
 }
 h4, h5, h6 {
-  font-size: 18px;
-  line-height: 22px;
+  font-size: 20px;
+  line-height: 24px;
 }
 
 /* general structure */
@@ -116,7 +132,7 @@ svg {
 /* lists */
 ol, ul {
   padding: 0;
-  margin: 0 0 1em 2em;
+  margin: 0 0 0.5em 2em;
 }
 ol ol, ul ul, ol ul, ul ol {
   margin-left: 1em;
@@ -199,6 +215,7 @@ img {
 }
 figure {
   margin: 0.5em 0;
+  padding: 0;
 }
 figure blockquote {
   margin: 0.8em 0.4em 0.4em;
@@ -223,10 +240,6 @@ figcaption, caption {
     display: inline-block;
     vertical-align: text-bottom;
     padding-bottom: 8px;
-  }
-  table {
-    display: inline-block;
-    overflow-x: auto;
   }
 }
 
@@ -289,7 +302,7 @@ thead+tbody > tr:nth-child(2n+1) > td {
 }
 table caption {
   margin: 0;
-  padding: 3px 1em;
+  padding: 3px 0 3px 1em;
 }
 table p {
   margin: 0;
@@ -298,17 +311,23 @@ table p {
 /* pilcrow */
 a.pilcrow {
   margin-left: 3px;
-  visibility: hidden;
+  opacity: 0.2;
   user-select: none;
 }
-a.pilcrow[href] { color: #ddd; }
+a.pilcrow[href] { color: var(--pilcrow-weak); }
 a.pilcrow[href]:hover { text-decoration: none; }
-@media screen {
+@media not print {
   :hover > a.pilcrow {
-    visibility: visible;
+    opacity: 1;
   }
-  a.pilcrow:hover {
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
     background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
   }
 }
 

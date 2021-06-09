@@ -4,7 +4,9 @@
 
 # Mandatory:
 #   https://pypi.python.org/pypi/xml2rfc
-xml2rfc ?= xml2rfc -q
+XML2RFC_RFC_BASE_URL := https://tools.ietf.org/html/
+XML2RFC_ID_BASE_URL := https://tools.ietf.org/html/
+xml2rfc ?= xml2rfc -q -s 'Setting consensus="true" for IETF STD document' --rfc-reference-base-url $(XML2RFC_RFC_BASE_URL) --id-reference-base-url $(XML2RFC_ID_BASE_URL)
 
 # If you are using markdown files use either kramdown-rfc2629 or mmark
 #   https://github.com/cabo/kramdown-rfc2629
@@ -45,6 +47,16 @@ SHELL := bash
 curl ?= curl -sS
 DATATRACKER_UPLOAD_URL ?= https://datatracker.ietf.org/api/submit
 
+  <<<<<<< alpine
+# The type of index that is created for gh-pages.
+# Supported options are 'html' and 'md'.
+INDEX_FORMAT ?= html
+
+# For spellchecking: pip install --user codespell
+codespell ?= codespell
+
+  =======
+  >>>>>>> master
 # Setup a shared cache for xml2rfc and kramdown-rfc2629
 ifeq (,$(KRAMDOWN_REFCACHEDIR))
 XML2RFC_REFCACHEDIR ?= $(HOME)/.cache/xml2rfc
