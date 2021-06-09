@@ -38,9 +38,8 @@ include $(LIBDIR)/upload.mk
 include $(LIBDIR)/update.mk
 
 ## Basic Targets
-.PHONY: txt raw html pdf
+.PHONY: txt html pdf
 txt:: $(drafts_txt)
-raw:: $(drafts_raw)
 html:: $(drafts_html)
 pdf:: $(addsuffix .pdf,$(drafts))
 
@@ -110,10 +109,7 @@ $(XSLTDIR):
 	$(xsltproc) --novalid --stringparam xml2rfc-ext-css-contents "$$(cat $(LIBDIR)/style.css)" $(LIBDIR)/rfc2629.xslt $< > $@
 
 %.txt: %.cleanxml
-	$(xml2rfc) $< -o $@ --text
-
-%.raw.txt: %.cleanxml
-	$(xml2rfc) $< -o $@ --raw
+	$(xml2rfc) $< -o $@ --text --no-pagination
 else
 %.html: %.xml $(LIBDIR)/v3.css
 	$(xml2rfc) --css=$(LIBDIR)/v3.css --metadata-js-url=/dev/null $< -o $@ --html
@@ -121,10 +117,7 @@ else
 	@-sed -i.rfc-local -e 's,<link[^>]*href=["'"'"]rfc-local.css["'"'"][^>]*>,,' $@; rm -f $@.rfc-local
 
 %.txt: %.xml
-	$(xml2rfc) $< -o $@ --text
-
-%.raw.txt: %.xml
-	$(xml2rfc) $< -o $@ --raw
+	$(xml2rfc) $< -o $@ --text --no-pagination
 endif
 
 %.pdf: %.txt
@@ -182,8 +175,13 @@ $(TEST_REPORT):
 	done; \
 	echo '</testsuite>' >>$@
 
-.PHONY: lint
-lint::
+.PHONY: lint lint-whitespace lint-default-branch
+lint:: lint-whitespace
+ifneq (true,$(CI))
+lint:: lint-default-branch
+endif
+
+lint-whitespace::
 	@err=0; for f in $(drafts_source); do \
 	  if [ "${f#draft-}" != "$f" ] && ! grep -q "$${f%.*}-latest" "$$f"; then \
 	    echo "$$f does not include the string $${f%.*}-latest"; err=1; \
@@ -196,19 +194,31 @@ lint::
 	  fi; \
 	done; [ "$$err" -eq 0 ] || ! echo "Run 'make fix-lint' to automatically fix some errors" 1>&2
 
-.PHONY: fix-lint
-fix-lint::
+lint-default-branch::
+	@-if ! git rev-parse --abbrev-ref refs/remotes/$(GIT_REMOTE)/HEAD >/dev/null 2>&1; then \
+	  echo "warning: A default branch for '$(GIT_REMOTE)' is not recorded in this clone."; \
+	  echo "         Running 'make fix-lint' will set the default branch to '$$(git rev-parse --abbrev-ref HEAD)'."; \
+	fi
+
+.PHONY: fix-lint fix-lint-whitespace fix-lint-default-branch
+fix-lint:: fix-lint-whitespace fix-lint-default-branch
+fix-lint-whitespace::
 	for f in $(drafts_source); do \
 	  [  -z "$$(tail -c 1 "$$f")" ] || echo >>"$$f"; \
 	done
 	sed -i~ -e 's/ *$$//' $(drafts_source)
+
+fix-lint-default-branch:
+	if ! git rev-parse --abbrev-ref refs/remotes/$(GIT_REMOTE)/HEAD >/dev/null 2>&1; then \
+	  echo "ref: refs/remotes/$(GIT_REMOTE)/$$(git rev-parse --abbrev-ref HEAD)" > $$(git rev-parse --git-dir)/refs/remotes/$(GIT_REMOTE)/HEAD; \
+	fi
 
 ## Cleanup
 COMMA := ,
 .PHONY: clean
 clean::
 	-rm -f .tags $(targets_file) issues.json \
-	    $(addsuffix .{txt$(COMMA)raw.txt$(COMMA)html$(COMMA)pdf},$(drafts)) index.html \
+	    $(addsuffix .{txt$(COMMA)html$(COMMA)pdf},$(drafts)) index.html \
 	    $(addsuffix -[0-9][0-9].{xml$(COMMA)md$(COMMA)org$(COMMA)txt$(COMMA)raw.txt$(COMMA)html$(COMMA)pdf},$(drafts)) \
 	    $(filter-out $(drafts_source),$(addsuffix .xml,$(drafts))) \
 	    $(uploads) $(draft_diffs)

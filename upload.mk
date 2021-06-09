@@ -27,3 +27,18 @@ upload: $(uploads)
 				 sed -e 's/^<//;s/>$$//')" -F "xml=@$<" \
 		"$(DATATRACKER_UPLOAD_URL)" && echo && \
 	  (grep -q ' 200 OK' $@ >/dev/null 2>&1 || ! cat $@ 1>&2)
+
+# This ignomonious hack ensures that we can catch missing files properly.
+.%.upload:
+	@if $(MAKE) "$*".xml; then \
+	  $(MAKE) "$@"; \
+	else \
+	  echo "============================================================================"; \
+	  echo "Warning: A source file for '$*' does not exist."; \
+	  echo; \
+	  echo "If you applied this tag in error, remove it before adding another tag:"; \
+	  echo "    git tag -d '$*'"; \
+	  echo "    git push -f $(GIT_REMOTE) ':$*'"; \
+	  echo "============================================================================"; \
+	  false; \
+	fi
