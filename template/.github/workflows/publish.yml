@@ -33,9 +33,12 @@ jobs:
           refcache-${{ steps.date.outputs.date }}
           refcache-
 
+  <<<<<<< alpine
     - name: "Build Drafts"
       uses: martinthomson/i-d-template@v1
 
+  =======
+  >>>>>>> master
     - name: "Upload to Datatracker"
       uses: martinthomson/i-d-template@v1
       with:

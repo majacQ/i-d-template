@@ -8,6 +8,7 @@ inputs:
     required: false
     default: 'latest'
 
+  <<<<<<< alpine
   token:
     description: 'Set this to secrets.GITHUB_TOKEN'
     required: false
@@ -19,6 +20,13 @@ runs:
     - ${{ inputs.make }}
   env:
     GITHUB_TOKEN: ${{ inputs.token }}
+  =======
+runs:
+  using: 'docker'
+  image: 'docker://martinthomson/i-d-template-action:latest'
+  args:
+    - ${{ inputs.make }}
+  >>>>>>> master
 
 branding:
   icon: 'check-square'

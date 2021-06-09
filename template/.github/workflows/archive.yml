@@ -18,13 +18,23 @@ jobs:
       uses: martinthomson/i-d-template@v1
       with:
         make: archive
+  <<<<<<< alpine
         token: ${{ secrets.GITHUB_TOKEN }}
+  =======
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  >>>>>>> master
 
     - name: "Update GitHub Pages"
       uses: martinthomson/i-d-template@v1
       with:
         make: gh-archive
+  <<<<<<< alpine
         token: ${{ secrets.GITHUB_TOKEN }}
+  =======
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  >>>>>>> master
 
     - name: "Save Archive"
       uses: actions/upload-artifact@v2

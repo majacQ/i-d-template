@@ -47,6 +47,7 @@ SHELL := bash
 curl ?= curl -sS
 DATATRACKER_UPLOAD_URL ?= https://datatracker.ietf.org/api/submit
 
+  <<<<<<< alpine
 # The type of index that is created for gh-pages.
 # Supported options are 'html' and 'md'.
 INDEX_FORMAT ?= html
@@ -54,6 +55,8 @@ INDEX_FORMAT ?= html
 # For spellchecking: pip install --user codespell
 codespell ?= codespell
 
+  =======
+  >>>>>>> master
 # Setup a shared cache for xml2rfc and kramdown-rfc2629
 ifeq (,$(KRAMDOWN_REFCACHEDIR))
 XML2RFC_REFCACHEDIR ?= $(HOME)/.cache/xml2rfc
