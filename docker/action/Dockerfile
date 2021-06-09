@@ -30,6 +30,7 @@ RUN set -e; \
       py3-requests \
       py3-setuptools \
       py3-six \
+      py3-yaml \
       python3 \
       ruby \
       sed
@@ -73,10 +74,14 @@ RUN set -e; v="2.2.9"; sha="b8c501be4118f79a294b658d963ec8c91595e94aea69c8efd0ea
     rm -f "$tmp"; \
     chmod 755 "$target"
 
-RUN pip3 install --compile xml2rfc
-RUN set -e; \
-    gem install --no-doc kramdown-rfc2629; \
-    certified-update
+RUN pip3 install --compile --no-cache-dir \
+    archive-repo \
+    svgcheck \
+    xml2rfc
+ENV KRAMDOWN_PERSISTENT=t
+RUN gem install --no-doc kramdown-rfc2629 net-http-persistent && \
+    certified-update && \
+    kramdown-rfc-cache-subseries-bibxml
 
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

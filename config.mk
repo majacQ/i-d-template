@@ -4,9 +4,14 @@
 
 # Mandatory:
 #   https://pypi.python.org/pypi/xml2rfc
-XML2RFC_RFC_BASE_URL := https://tools.ietf.org/html/
-XML2RFC_ID_BASE_URL := https://tools.ietf.org/html/
-xml2rfc ?= xml2rfc -q -s 'Setting consensus="true" for IETF STD document' --rfc-reference-base-url $(XML2RFC_RFC_BASE_URL) --id-reference-base-url $(XML2RFC_ID_BASE_URL)
+XML2RFC_RFC_BASE_URL := https://datatracker.ietf.org/doc/html/
+XML2RFC_ID_BASE_URL := https://datatracker.ietf.org/doc/html/
+xml2rfc ?= xml2rfc -q -s 'Setting consensus="true" for IETF STD document' --rfc-base-url $(XML2RFC_RFC_BASE_URL) --id-base-url $(XML2RFC_ID_BASE_URL)
+# Tell kramdown not to generate targets on references so the above takes effect.
+KRAMDOWN_NO_TARGETS := true
+export KRAMDOWN_NO_TARGETS
+KRAMDOWN_PERSISTENT := true
+export KRAMDOWN_PERSISTENT
 
 # If you are using markdown files use either kramdown-rfc2629 or mmark
 #   https://github.com/cabo/kramdown-rfc2629
@@ -42,6 +47,8 @@ XML_RESOURCE_ORG_PREFIX ?= https://xml2rfc.tools.ietf.org/public/rfc
 
 # This is for people running macs
 SHELL := bash
+
+python ?= /usr/bin/env python3
 
 # For uploading draft "releases" to the datatracker.
 curl ?= curl -sS

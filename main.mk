@@ -58,10 +58,11 @@ MD_PRE += | sed -e '$(join $(addprefix s/,$(addsuffix -latest/,$(NOT_CURRENT))),
 		$(addsuffix /g;,$(NOT_CURRENT)))'
 endif
 MD_POST := | $(LIBDIR)/add-note.py
-ifeq (true,$(USE_XSLT))
-MD_POST +=  >
-else
-MD_POST += | $(xml2rfc) --v2v3 /dev/stdin -o
+ifneq (true,$(USE_XSLT))
+MD_POST += | $(xml2rfc) --v2v3 /dev/stdin -o /dev/stdout
+endif
+ifneq (,$(XML_TIDY))
+MD_POST += | $(XML_TIDY)
 endif
 
 %.xml: %.md
@@ -69,11 +70,11 @@ endif
 	if [ "$${h:0:1}" = $$'\ufeff' ]; then echo 'warning: BOM in $<' 1>&2; h="$${h:1:3}"; \
 	else h="$${h:0:3}"; fi; \
 	if [ "$$h" = '---' ]; then \
-	  echo '$(subst ','"'"',cat $< $(MD_PRE) | $(kramdown-rfc2629) --v3 $(MD_POST) $@)'; \
-	  cat $< $(MD_PRE) | $(kramdown-rfc2629) --v3 $(MD_POST) $@; \
+	  echo '$(subst ','"'"',cat $< $(MD_PRE) | $(kramdown-rfc2629) --v3 $(MD_POST) >$@)'; \
+	  cat $< $(MD_PRE) | $(kramdown-rfc2629) --v3 $(MD_POST) >$@; \
 	elif [ "$$h" = '%%%' ]; then \
-	  echo '$(subst ','"'"',cat $< $(MD_PRE) | $(mmark) -xml2 -page $(MD_POST) $@)'; \
-	  cat $< $(MD_PRE) | $(mmark) -xml2 -page $(MD_POST) $@; \
+	  echo '$(subst ','"'"',cat $< $(MD_PRE) | $(mmark) -xml2 -page $(MD_POST) >$@)'; \
+	  cat $< $(MD_PRE) | $(mmark) -xml2 -page $(MD_POST) >$@; \
 	else \
 	  ! echo "Unable to detect '%%%' or '---' in markdown file" 1>&2; \
 	fi && [ -e $@ ]
@@ -124,8 +125,26 @@ endif
 	$(enscript) --margins 76::76: -B -q -p - $< | $(ps2pdf) - $@
 
 ## Build copies of drafts for submission
+.PHONY: next
+next:: $(drafts_next_txt) $(drafts_next_xml)
+
+## Remind people to use CI
 .PHONY: submit
-submit:: $(drafts_next_txt) $(drafts_next_xml)
+submit::
+	@echo "\`make submit\` is not really necessary."
+	@echo "\`make\` on its own is a pretty good preview."
+	@echo "To upload a new draft to datatracker, try this:"
+	@echo
+	@for i in $(drafts_next); do \
+	  echo "    make tag -a $$i"; \
+	done
+	@for i in $(drafts_next); do \
+	  echo "    git push origin $$i"; \
+	done
+	@echo
+	@echo "Don't forget the \`-a\`."
+	@echo
+	@echo "To get a preview, use \`make next\`."
 
 ## Check for validity
 .PHONY: check idnits

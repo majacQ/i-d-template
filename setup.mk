@@ -17,7 +17,7 @@ LATEST_WARNING := $(strip $(foreach draft,$(drafts_source),\
 	   $(shell grep -q $(basename $(draft))-latest $(draft) || \
 		echo $(draft) should include a name of $(basename $(draft))-latest. )))
 ifneq (,$(LATEST_WARNING))
-$(warning Check names: $(LATEST_WARNING))
+$(error Check names: $(LATEST_WARNING))
 endif
 ifneq (,$(strip $(shell git status -s --porcelain 2>/dev/null | egrep -v '^.. (.targets.mk|$(LIBDIR)/?|$(LIBDIR)/.template-files.mk)$$')))
 $(error You have uncommitted changes or untracked files, please commit them before running setup)
@@ -45,7 +45,7 @@ $(TEMPLATE_FILE_MK): $(LIBDIR)/setup.mk
 	  echo '	-cp $$< $$@' >>$@;)
 
 .PHONY: setup-files
-setup-files: $(TEMPLATE_FILES) README.md .note.xml
+setup-files: $(TEMPLATE_FILES) README.md .note.xml .github/CODEOWNERS
 	git add $(drafts_source)
 	git add $^
 
@@ -83,6 +83,10 @@ README.md: $(LIBDIR)/setup-readme.sh $(drafts_xml) $(filter %.md, $(TEMPLATE_FIL
 
 .note.xml: $(LIBDIR)/setup-note.sh
 	$(LIBDIR)/setup-note.sh $(GITHUB_USER) $(GITHUB_REPO) $(drafts) >$@
+	git add $@
+
+.github/CODEOWNERS: $(LIBDIR)/setup-codeowners.sh $(drafts_xml)
+	$(LIBDIR)/setup-codeowners.sh $(filter %.xml,$^) >$@
 	git add $@
 
 .PHONY: setup-master

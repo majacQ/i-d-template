@@ -1,6 +1,6 @@
-ARG REGISTRY
+ARG REGISTRY=ghcr.io
 ARG VERSION=latest
-FROM ${REGISTRY}martinthomson/i-d-template-action:${VERSION}
+FROM ${REGISTRY}/martinthomson/i-d-template-action:${VERSION}
 
 ENV USER=idci \
     LOGNAME=idci \
@@ -22,3 +22,6 @@ RUN GIT_REFERENCE=$HOME/git-reference; \
     git -C $GIT_REFERENCE remote add i-d-template https://github.com/martinthomson/i-d-template; \
     git -C $GIT_REFERENCE remote add rfc2629xslt https://github.com/reschke/xml2rfc; \
     git -C $GIT_REFERENCE fetch --all
+
+# Unset the entrypoint from the base image
+ENTRYPOINT []
